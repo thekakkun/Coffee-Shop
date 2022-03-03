@@ -66,7 +66,7 @@ def get_token_auth_header():
 
 
 '''
-@TODO implement check_permissions(permission, payload) method
+@TODO: implement check_permissions(permission, payload) method
     @INPUTS
         permission: string permission (i.e. 'post:drink')
         payload: decoded jwt payload
@@ -83,7 +83,7 @@ def check_permissions(permission, payload):
 
 
 '''
-@TODO implement verify_decode_jwt(token) method
+@TODO: implement verify_decode_jwt(token) method
     @INPUTS
         token: a json web token (string)
 
@@ -102,7 +102,7 @@ def verify_decode_jwt(token):
 
 
 '''
-@TODO implement @requires_auth(permission) decorator method
+@TODO: implement @requires_auth(permission) decorator method
     @INPUTS
         permission: string permission (i.e. 'post:drink')
 
