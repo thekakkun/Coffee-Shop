@@ -3,9 +3,10 @@ from functools import wraps
 from multiprocessing import AuthenticationError
 from multiprocessing.sharedctypes import Value
 from urllib.request import urlopen
+from click import option
 
 from flask import _request_ctx_stack, request
-from jose import jwt
+import jwt
 
 AUTH0_DOMAIN = 'dev-2m33ryh3.us.auth0.com'
 ALGORITHMS = ['RS256']
@@ -93,8 +94,8 @@ def check_permissions(permission, payload):
         return True
 
 
-'''
-@TODO: implement verify_decode_jwt(token) method
+def verify_decode_jwt(token):
+    '''
     @INPUTS
         token: a json web token (string)
 
@@ -105,11 +106,70 @@ def check_permissions(permission, payload):
     return the decoded payload
 
     !!NOTE urlopen has a common certificate error described here: https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
-'''
+    '''
+    
+    header = jwt.get_unverified_header(token)
+    if 'kid' not in header:
+        raise AuthError({
+            'code': 'invalid_header',
+            'description': 'Authorization malformed.'
+        }, 401)
 
+    url = f'https://{AUTH0_DOMAIN}/.well-known/jwks.json'
+    jwks_client = jwt.PyJWKClient(url)
 
-def verify_decode_jwt(token):
-    raise Exception('Not Implemented')
+    try:
+        signing_key = jwks_client.get_signing_key_from_jwt(token)
+        data = jwt.decode(
+            token,
+            signing_key.key,
+            algorithms=ALGORITHMS,
+            options={'require': ['exp', 'iss', 'aud']},
+            audience=API_AUDIENCE,
+            issuer=f'https://{AUTH0_DOMAIN}/'
+        )
+        return data
+
+    except jwt.MissingRequiredClaimError:
+        raise AuthError({
+            'code': 'invalid claims',
+            'Description': 'Missing required claims'
+        }, 401)
+    except jwt.InvalidKeyError:
+        raise AuthError({
+            'code': 'invalid key',
+            'Description': 'Key is not in the proper format'
+        }, 401)
+    except jwt.InvalidIssuerError:
+        raise AuthError({
+            'code': 'invalid issuer',
+            'description': '"iss" claim does not match expected issuer.'
+        }, 401)
+    except jwt.InvalidAudienceError:
+        raise AuthError({
+            'code': 'invalid audience',
+            'description': '"aud" claim does not match expected audience.'
+        }, 401)
+    except jwt.ExpiredSignatureError:
+        raise AuthError({
+            'code': 'token expired',
+            'description': 'Token expired.'
+        }, 401)
+    except jwt.InvalidSignatureError:
+        raise AuthError({
+            'code': 'invalid signature',
+            'description': 'Signature does not match the one provided.'
+        }, 401)
+    except jwt.DecodeError:
+        raise AuthError({
+            'code': 'decode error',
+            'description': 'Token failed validation.'
+        }, 400)
+    except jwt.InvalidTokenError:
+        raise AuthError({
+            'code': 'invalid token',
+            'description': 'Token could not be decoded.'
+        }, 400)
 
 
 '''
