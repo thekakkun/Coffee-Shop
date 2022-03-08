@@ -1,12 +1,7 @@
-import json
 from functools import wraps
-from multiprocessing import AuthenticationError
-from multiprocessing.sharedctypes import Value
-from urllib.request import urlopen
-from click import option
 
-from flask import _request_ctx_stack, request
 import jwt
+from flask import request
 
 AUTH0_DOMAIN = 'dev-2m33ryh3.us.auth0.com'
 ALGORITHMS = ['RS256']
@@ -107,7 +102,7 @@ def verify_decode_jwt(token):
 
     !!NOTE urlopen has a common certificate error described here: https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
     '''
-    
+
     header = jwt.get_unverified_header(token)
     if 'kid' not in header:
         raise AuthError({
