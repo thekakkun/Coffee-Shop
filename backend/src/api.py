@@ -1,5 +1,7 @@
+from crypt import methods
 import json
 import os
+import re
 
 from flask import Flask, abort, jsonify, request
 from flask_cors import CORS
@@ -21,6 +23,8 @@ CORS(app)
 # db_drop_and_create_all()
 
 # ROUTES
+
+
 @app.route('/drinks')
 def get_drinks():
     '''
@@ -61,6 +65,22 @@ def get_drinks_detail(payload):
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
         or appropriate status code indicating reason for failure
 '''
+
+
+@app.route('/drinks', methods=['POST'])
+@requires_auth('post:drinks')
+def add_drinks(payload):
+    drink_data = json.loads(request.data)
+    drink = Drink(
+        title=drink_data['title'],
+        recipe=json.dumps(drink_data['recipe'])
+    )
+    drink.insert()
+
+    return jsonify({
+        'success': True,
+        'drinks': [drink.long() for drink in Drink.query.all()]
+    }), 200
 
 
 '''
