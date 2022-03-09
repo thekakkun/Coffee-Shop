@@ -10,7 +10,7 @@
             "request": "launch",
             "module": "flask",
             "env": {
-                "FLASK_APP": "src/database/api.py",
+                "FLASK_APP": "src/api.py",
                 "FLASK_ENV": "development"
             },
             "args": [
