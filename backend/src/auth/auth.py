@@ -31,7 +31,7 @@ def get_token_auth_header():
     return the token part of the header
     '''
 
-    auth = request.header.get('Authorization', None)
+    auth = request.headers.get('Authorization', None)
 
     if not auth:
         raise AuthError({
@@ -47,9 +47,9 @@ def get_token_auth_header():
             'description': 'Token not found.'
         }, 401)
 
-    if schema.lower != 'bearer':
+    if schema.lower() != 'bearer':
         raise AuthError({
-            'code': 'invalid heder',
+            'code': 'invalid header',
             'description': 'The authorization schema used must be "Bearer".'
         }, 401)
     elif other:
