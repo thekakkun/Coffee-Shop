@@ -21,24 +21,35 @@ CORS(app)
 # db_drop_and_create_all()
 
 # ROUTES
-'''
-@TODO: implement endpoint
+@app.route('/drinks')
+def get_drinks():
+    '''
     GET /drinks
         it should be a public endpoint
         it should contain only the drink.short() data representation
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
-'''
+    '''
+    return jsonify({
+        'success': True,
+        'drinks': [drink.short() for drink in Drink.query.all()]
+    }), 200
 
 
-'''
-@TODO: implement endpoint
+@app.route('/drinks-detail')
+@requires_auth('get:drinks-detail')
+def get_drinks_detail(payload):
+    '''
     GET /drinks-detail
         it should require the 'get:drinks-detail' permission
         it should contain the drink.long() data representation
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
-'''
+    '''
+    return jsonify({
+        'success': True,
+        'drinks': [drink.long() for drink in Drink.query.all()]
+    }), 200
 
 
 '''
