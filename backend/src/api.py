@@ -69,7 +69,7 @@ def add_drink(payload):
     '''
 
     try:
-        drink_data = json.loads(request.data)
+        drink_data = request.json
         drink = Drink(
             title=drink_data['title'],
             recipe=json.dumps(drink_data['recipe'])
@@ -103,9 +103,10 @@ def edit_drink(payload, drink_id):
         if not drink:
             abort(404)
 
-        drink_data = json.loads(request.data)
-        drink.title = drink_data['title']
-        drink.recipe = json.dumps(drink_data['recipe'])
+        drink_data = request.json
+        drink.title = drink_data.get('title', drink.title)
+        if 'recipe' in drink_data:
+            drink.recipe = json.dumps(drink_data['recipe'])
         drink.update()
     except Exception as err:
         abort(err.code) if err.code else abort(422)
